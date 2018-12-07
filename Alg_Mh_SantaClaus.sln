@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCConsole", "SCConsole\SCConsole.csproj", "{DD015A4D-CF62-4A07-AD17-97DA56ADB8F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCLib", "SCLib\SCLib.csproj", "{38C69DEA-19D6-4FCF-A171-E183A9D2526D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCLib", "SCLib\SCLib.csproj", "{38C69DEA-19D6-4FCF-A171-E183A9D2526D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCVis", "SCVis\SCVis.csproj", "{21358802-E1A5-4625-A5EB-BD579F95428D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{38C69DEA-19D6-4FCF-A171-E183A9D2526D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38C69DEA-19D6-4FCF-A171-E183A9D2526D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38C69DEA-19D6-4FCF-A171-E183A9D2526D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21358802-E1A5-4625-A5EB-BD579F95428D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21358802-E1A5-4625-A5EB-BD579F95428D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21358802-E1A5-4625-A5EB-BD579F95428D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21358802-E1A5-4625-A5EB-BD579F95428D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
