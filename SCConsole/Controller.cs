@@ -15,7 +15,7 @@ namespace SCConsole
         public Controller()
         {
             var config = JObject.Parse(File.ReadAllText(@"config.json"));
-            _path = (string)config["datafile"];
+            _path = (string)config["gifts"];
             var window = new GLWindow(800, 450, "Santa Claus");
             window.Loaded += (sender, args) => Load((GLWindow) sender);
             window.Run();
