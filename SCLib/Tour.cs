@@ -19,6 +19,14 @@ namespace SCLib
             Cost = ComputeCost(Indices);
         }
 
+        private Tour(IEnumerable<int> indices, double cost)
+        {
+            Indices = indices.ToList();
+            Cost = cost;
+        }
+
+        public Tour Clone() => new Tour(Indices, Cost);
+
         /**
          * Swap 2 element in the tour, reverse list if reverse tour has lower cost
          * Updates cost
