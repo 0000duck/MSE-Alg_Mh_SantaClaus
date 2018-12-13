@@ -28,6 +28,7 @@ namespace SCVis
             _window.Load += OnLoad;
             _window.UpdateFrame += OnUpdate;
             _window.RenderFrame += OnRender;
+            _window.Resize += (sender, args) => { GL.Viewport(_window.ClientRectangle); };
         }
 
         public void Run() => _window.Run(60);
