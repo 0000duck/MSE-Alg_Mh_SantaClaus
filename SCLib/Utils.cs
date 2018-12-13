@@ -1,41 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace SCLib
 {
-    static class Utils
+    public static class Utils
     {
-        public static double CalcPenalty(List<int> trip, List<Gift> gifts)
+        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, int full)
         {
-            if (trip.Count == 0) return 0.0;
-            double weightSum = 0.0;
-            foreach (int g in trip)
-            {
-                weightSum += gifts[g].Weight;
-            }
-            return CalcPenalty(trip, gifts, weightSum);
+            // Make groups by longitude and sort by latitude
+            var clusterAndSort = gifts.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute));
+            // Build groups with max weight < full
+            var groupsWithLimitedWeight = clusterAndSort.AsParallel().
+                SelectMany(
+                    groups => groups.Aggregate(
+                        new List<List<Gift>>(), 
+                        (acc, g) => 
+                        {
+                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full)
+                                acc.Add(new List<Gift>());
+                            acc.Last().Add(g);
+                            return acc;
+                        }
+                    )
+                ).ToList();
+            Console.WriteLine(CalcAllPenalty(groupsWithLimitedWeight));
+            return groupsWithLimitedWeight;
         }
 
-        public static double CalcPenalty(List<int> trip, List<Gift> gifts, double weightSum)
+        public static double CalcAllPenalty(List<List<Gift>> groupedGifts)
         {
-            if (trip.Count == 0) return 0.0;
+            double wholePenalty = 0.0;
+            foreach (List<Gift> tour in groupedGifts)
+            {
+                wholePenalty += CalcTourPenalty(tour);
+            }
+            return wholePenalty;
+        }
+
+        public static double CalcTourPenalty(List<Gift> gifts)
+        {
+            double weightSum = 0.0;
+            foreach (Gift g in gifts)
+            {
+                weightSum += g.Weight;
+            }
             double res = 0.0;
             double w = weightSum + 10.0;
-            for (int i = 0; i < trip.Count - 1; i++)
+            for (int i = 0; i < gifts.Count - 1; i++)
             {
-                res += CalcDistance(gifts, trip[i], trip[i + 1]) * w;
-                w -= gifts[trip[i + 1]].Weight;
+                res += CalcDistance(gifts[i], gifts[i + 1]) * w;
+                w -= gifts[i + 1].Weight;
             }
             return res;
         }
 
-        public static double CalcDistance(List<Gift> gifts, int gift1, int gift2)
+        public static double CalcDistance(Gift gift1, Gift gift2)
         {
             // We use Chord Length as we have less cos and sin calls.
-            double dx = gifts[gift1].X - gifts[gift2].X;
-            double dy = gifts[gift1].Y - gifts[gift2].Y;
-            double dz = gifts[gift1].Z - gifts[gift2].Z;
+            double dx = gift1.X - gift2.X;
+            double dy = gift1.Y - gift2.Y;
+            double dz = gift1.Z - gift2.Z;
             double d = dx * dx + dy * dy + dz * dz;
             double r = Math.Sqrt(d);
             // We lose to much precision. We normalize the values to still be accurate.
@@ -43,4 +69,41 @@ namespace SCLib
             return 2 * Math.Asin(r);
         }
     }
+    
+    /*public static double CalcPenalty(List<int> trip, List<Gift> gifts)
+    {
+        if (trip.Count == 0) return 0.0;
+        double weightSum = 0.0;
+        foreach (int g in trip)
+        {
+            weightSum += gifts[g].Weight;
+        }
+        return CalcPenalty(trip, gifts, weightSum);
+    }
+
+    public static double CalcPenalty(List<int> trip, List<Gift> gifts, double weightSum)
+    {
+        if (trip.Count == 0) return 0.0;
+        double res = 0.0;
+        double w = weightSum + 10.0;
+        for (int i = 0; i < trip.Count - 1; i++)
+        {
+            res += CalcDistance(gifts, trip[i], trip[i + 1]) * w;
+            w -= gifts[trip[i + 1]].Weight;
+        }
+        return res;
+    }
+
+    public static double CalcDistance(List<Gift> gifts, int gift1, int gift2)
+    {
+        // We use Chord Length as we have less cos and sin calls.
+        double dx = gifts[gift1].X - gifts[gift2].X;
+        double dy = gifts[gift1].Y - gifts[gift2].Y;
+        double dz = gifts[gift1].Z - gifts[gift2].Z;
+        double d = dx * dx + dy * dy + dz * dz;
+        double r = Math.Sqrt(d);
+        // We lose to much precision. We normalize the values to still be accurate.
+        if (r < 0.02) return r * (2 + (2.0 / 6) * d);
+        return 2 * Math.Asin(r);
+    }*/
 }
