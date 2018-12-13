@@ -6,11 +6,24 @@ namespace SCLib
 {
     static class Utils
     {
-        public static double CalcPenalty(List<int> trip, List<Gift> gifts, double weightSum) {
+        public static double CalcPenalty(List<int> trip, List<Gift> gifts)
+        {
+            if (trip.Count == 0) return 0.0;
+            double weightSum = 0.0;
+            foreach (int g in trip)
+            {
+                weightSum += gifts[g].Weight;
+            }
+            return CalcPenalty(trip, gifts, weightSum);
+        }
+
+        public static double CalcPenalty(List<int> trip, List<Gift> gifts, double weightSum)
+        {
             if (trip.Count == 0) return 0.0;
             double res = 0.0;
             double w = weightSum + 10.0;
-            for (int i=0; i<trip.Count-1; i++) {
+            for (int i = 0; i < trip.Count - 1; i++)
+            {
                 res += CalcDistance(gifts, trip[i], trip[i + 1]) * w;
                 w -= gifts[trip[i + 1]].Weight;
             }
