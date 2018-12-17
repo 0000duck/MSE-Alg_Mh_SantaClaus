@@ -5,27 +5,25 @@ namespace SCLib
 {
     public class Tour
     {
-        public static List<Gift> Gifts = new List<Gift>();
-
-        public readonly List<int> Indices;
-        private readonly List<int> _reverse;
+        public readonly List<Gift> Gifts;
+        private readonly List<Gift> _reverse;
 
         public double Cost { get; private set; }
 
-        public Tour(IEnumerable<int> indices)
+        public Tour(IEnumerable<Gift> gifts)
         {
-            Indices = indices.ToList();
-            _reverse = new List<int>(Indices.Count);
-            Cost = ComputeCost(Indices);
+            Gifts = gifts.ToList();
+            _reverse = new List<Gift>(Gifts.Count);
+            Cost = Utils.CalcTourPenalty(Gifts);
         }
 
-        private Tour(IEnumerable<int> indices, double cost)
+        private Tour(IEnumerable<Gift> gifts, double cost)
         {
-            Indices = indices.ToList();
+            Gifts = gifts.ToList();
             Cost = cost;
         }
 
-        public Tour Clone() => new Tour(Indices, Cost);
+        public Tour Clone() => new Tour(Gifts, Cost);
 
         /**
          * Swap 2 element in the tour, reverse list if reverse tour has lower cost
@@ -33,30 +31,25 @@ namespace SCLib
          */
         public void Swap(int a, int b)
         {
-            var temp = Indices[a];
-            Indices[a] = Indices[b];
-            Indices[b] = temp;
-            var forwardCost = ComputeCost(Indices);
+            var temp = Gifts[a];
+            Gifts[a] = Gifts[b];
+            Gifts[b] = temp;
+            var forwardCost = Utils.CalcTourPenalty(Gifts);
 
             _reverse.Clear();
-            _reverse.AddRange(Indices);
+            _reverse.AddRange(Gifts);
             _reverse.Reverse();
 
-            var backwardCost = ComputeCost(_reverse);
+            var backwardCost = Utils.CalcTourPenalty(_reverse);
             if (backwardCost < forwardCost)
             {
                 Cost = backwardCost;
-                Indices.Reverse();
+                Gifts.Reverse();
             }
             else
             {
                 Cost = forwardCost;
             }
-        }
-
-        private static double ComputeCost(List<int> indices)
-        {
-            return Utils.CalcPenalty(indices, Gifts);
         }
     }
 }

@@ -4,11 +4,11 @@ namespace SCLib
 {
     public class HillClimber
     {
-        private const int T = 100000;
+        private const int T = 1000;
 
         public static Tour Run(Tour tour)
         {
-            var n = tour.Indices.Count;
+            var n = tour.Gifts.Count;
             var rnd = new Random(17);
             var t = 0.0;
             var solution = tour.Clone();
