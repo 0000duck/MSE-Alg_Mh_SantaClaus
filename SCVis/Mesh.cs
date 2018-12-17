@@ -49,9 +49,8 @@ namespace SCVis
             GL.DrawArrays(PrimitiveType.Points, 0, _length);
         }
 
-        public void RenderPath()
+        public void RenderPath(int path)
         {
-            GL.BindVertexArray(_vao);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
             GL.DrawElements(PrimitiveType.LineLoop, _length, DrawElementsType.UnsignedInt, 0);
         }

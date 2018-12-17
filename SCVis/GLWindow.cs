@@ -2,10 +2,8 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using OpenTK.Graphics;
-using SCLib;
 using ButtonState = OpenTK.Input.ButtonState;
 
 namespace SCVis
@@ -16,6 +14,7 @@ namespace SCVis
         private Program _programPoints, _programPath;
         private Vector4 _colorPoints, _colorPath;
         private Mesh _mesh;
+        private List<(int, Color4)> paths;
         private Matrix4 _transformation;
         private MouseState _state;
 
@@ -58,20 +57,12 @@ namespace SCVis
             Loaded?.Invoke(this, null);
         }
 
-        private static float ToNormalRange(float x, float min, float max) => (x - min) / (max - min) * 2 - 1;
-
-        public void SetInstance(Gift[] gifts, float minX, float maxX, float minY, float maxY)
+        public void SetVertices(float[] vertices, int n)
         {
-            var n = gifts.Length;
-            var vertices = gifts.SelectMany(x => new[]
-            {
-                ToNormalRange((float) x.Longitude, minX, maxX),
-                ToNormalRange((float) x.Latitute, minY, maxY)
-            }).ToArray();
             _mesh.SetVertices(vertices, n);
         }
 
-        public void SetPath(int[] indices)
+        public void SetTour(int[] indices)
         {
             _mesh.SetPath(indices);
         }

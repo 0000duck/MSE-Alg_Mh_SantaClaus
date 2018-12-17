@@ -6,7 +6,7 @@ namespace SCLib
     {
         private const int T = 100000;
 
-        public Tour run(Tour tour)
+        public static Tour Run(Tour tour)
         {
             var n = tour.Indices.Count;
             var rnd = new Random(17);
