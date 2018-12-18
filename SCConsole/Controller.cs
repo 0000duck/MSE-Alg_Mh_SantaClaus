@@ -79,9 +79,10 @@ namespace SCConsole
                 tours = tours.AsParallel().Select(HillClimber.Run).ToList();
                 Console.WriteLine("Solution completed");
                 _updateTour?.Invoke(this, new TourEventArgs(tours));
+
                 Console.WriteLine($"Total score: {tours.Sum(tour => tour.Cost)}");
                 Console.WriteLine($"Saving solution in {_pathSolution}");
-                IOHandler.Save(_pathSolution, tours);
+                IOHandler.Save(_pathSolution, n, tours);
             });
             
         }

@@ -20,18 +20,23 @@ namespace SCLib
             return list.ToArray();
         }
 
-        public static void Save(string path, List<Tour> solution)
+        public static void Save(string path, int n, List<Tour> solution)
         {
+            var indices = new int[n];
+            for (var i = 0; i < solution.Count; i++)
+            {
+                var tour = solution[i];
+                foreach (var gift in tour.Gifts)
+                {
+                    indices[gift.Id - 1] = i;
+                }
+            }
             using (var sw = new StreamWriter(new BufferedStream(File.Create(path))))
             {
                 sw.WriteLine("GiftId,TripId");
-                for (var i = 0; i < solution.Count; i++)
+                for (var i = 0; i < n; i++)
                 {
-                    var tour = solution[i];
-                    foreach (var gift in tour.Gifts)
-                    {
-                        sw.WriteLine($"{gift.Id},{i}");
-                    }
+                    sw.WriteLine($"{i + 1},{indices[i]}");
                 }
             }
         }
