@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using OpenTK.Graphics;
 using ButtonState = OpenTK.Input.ButtonState;
 using SCLib;
@@ -13,9 +14,9 @@ namespace SCVis
     {
         private readonly GameWindow _window;
         private Program _programPoints, _programPath;
-        private Vector4 _colorPoints, _colorPath;
+        private Vector4 _colorPoints;
         private Mesh _mesh;
-        private List<(int, Color4)> _paths;
+        private List<(int, Vector4)> _paths;
         private Matrix4 _transformation;
         private MouseState _state;
 
@@ -33,6 +34,19 @@ namespace SCVis
 
         public void Run() => _window.Run(60);
 
+        public void RunBackground(Action action)
+        {
+            Task.Run(() =>
+            {
+                var nw = new NativeWindow();
+                var context = new GraphicsContext(GraphicsMode.Default, nw.WindowInfo);
+                context.MakeCurrent(nw.WindowInfo);
+                action.Invoke();
+                context.Dispose();
+                nw.Dispose();
+            });
+        }
+
         private void OnLoad(object sender, EventArgs args)
         {
             //Init application
@@ -46,10 +60,9 @@ namespace SCVis
             geometryShader.Delete();
             
             _mesh = new Mesh();
-            _paths = new List<(int, Color4)>();
+            _paths = new List<(int, Vector4)>();
             GL.ClearColor(0.9f, 0.9f, 0.9f, 1f);
             _colorPoints = new Vector4(0f, 0f, 1f, 1f);
-            _colorPath = new Vector4(1f, 0f, 0f, 1f);
             _transformation = Matrix4.Identity;
 
             var error = GL.GetError();
@@ -69,16 +82,19 @@ namespace SCVis
             var n = tours.Count;
             if (!_mesh.ActivePath)
             {
-                foreach(var ebo in _mesh.GenPaths(n))
+                for (var i = 0; i < n; i++)
                 {
-                    _paths.Add((ebo, Color4.Red)); //TODO random color
+                    var ebo = _mesh.GenPaths();
+                    _paths.Add((ebo, new Vector4(1f, 0f, 0f, 1f))); //TODO random color
                 }
             }
             for (var i = 0; i < n; i++)
             {
                 var ebo = _paths[i].Item1;
-                var indices = tours[i];
-                _mesh.SetPath(ebo, indices);
+                var indices = new List<uint>();
+                indices.Add(0);
+                indices.AddRange(tours[i]);
+                _mesh.SetPath(ebo, indices.ToArray());
             }
         }
 
@@ -116,8 +132,11 @@ namespace SCVis
             {
                 _programPath.Use();
                 _programPath.WriteMat4("T", _transformation);
-                _programPath.WriteVec4("C", _colorPath);
-                _mesh.RenderPath(0);
+                foreach (var (ebo, color) in _paths)
+                {
+                    _programPath.WriteVec4("C", color);
+                    _mesh.RenderPath(ebo);
+                }
             }
 
             //render points

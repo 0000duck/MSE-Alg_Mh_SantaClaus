@@ -50,7 +50,10 @@ namespace SCConsole
             var fmaxX = (float)maxX;
             var fmaxY = (float)maxY;
             var n = gifts.Length;
-            var vertices = gifts.SelectMany(x => new[]
+            var vertGifts = new List<Gift>(n+1);
+            vertGifts.Add(new Gift(0, 90, 0, 0));
+            vertGifts.AddRange(gifts);
+            var vertices = vertGifts.SelectMany(x => new[]
             {
                 ToNormalRange((float) x.Longitude, fminX, fmaxX),
                 ToNormalRange((float) x.Latitute, fminY, fmaxY)
@@ -60,12 +63,7 @@ namespace SCConsole
             Console.WriteLine("Showing data");
             window.SetVertices(vertices, n);
 
-            _updateTour += (sender, args) =>
-            {
-                window.SetTour(args.Tours.Select(tour => tour.Gifts.Select(gift => gift.Id - 1).ToArray()).ToList());
-            };
-
-            Task.Run(() =>
+            window.RunBackground(() =>
             {
                 // create initial solution
                 Console.WriteLine("Creating initial solution");
@@ -73,20 +71,18 @@ namespace SCConsole
                 Console.WriteLine(Utils.CalcAllPenalty(initial));
                 Console.WriteLine("Initial solution completed");
                 var tours = initial.Select(list => new Tour(list)).ToList();
-                //IOHandler.Save(_pathSolution, n, tours);
-                _updateTour?.Invoke(this, new TourEventArgs(tours));
+                window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
 
                 // optimize solution
                 Console.WriteLine("Optimize solution");
                 tours = tours.AsParallel().Select(HillClimber.Run).ToList();
                 Console.WriteLine("Solution completed");
-                _updateTour?.Invoke(this, new TourEventArgs(tours));
+                window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
 
                 Console.WriteLine($"Total score: {tours.Sum(tour => tour.Cost)}");
                 Console.WriteLine($"Saving solution in {_pathSolution}");
                 IOHandler.Save(_pathSolution, n, tours);
             });
-            
         }
         private static float ToNormalRange(float x, float min, float max) => (x - min) / (max - min) * 2 - 1;
     }
