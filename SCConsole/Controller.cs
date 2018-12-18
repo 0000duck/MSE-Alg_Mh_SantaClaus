@@ -14,8 +14,6 @@ namespace SCConsole
         private readonly string _pathGifts;
         private readonly string _pathSolution;
 
-        private event EventHandler<TourEventArgs> _updateTour;
-
         public Controller()
         {
             var config = JObject.Parse(File.ReadAllText(@"config.json"));
@@ -32,36 +30,24 @@ namespace SCConsole
             var gifts = IOHandler.Load(_pathGifts);
             // preprocessing
             Console.WriteLine("Preprocessing data");
-            var minX = double.MaxValue;
-            var minY = double.MaxValue;
-            var maxX = double.MinValue;
-            var maxY = double.MinValue;
-            foreach (var gift in gifts)
-            {
-                var lat = gift.Latitute;
-                var lot = gift.Longitude;
-                minX = Math.Min(minX, lot);
-                maxX = Math.Max(maxX, lot);
-                minY = Math.Min(minY, lat);
-                maxY = Math.Max(maxY, lat);
-            }
-            var fminX = (float)minX;
-            var fminY = (float)minY;
-            var fmaxX = (float)maxX;
-            var fmaxY = (float)maxY;
+            var minLong = (float) -Math.PI;
+            var maxLong = (float) Math.PI;
+            var minLat = (float) -Math.PI / 2;
+            var maxLat = (float) Math.PI / 2;
             var n = gifts.Length;
             var vertGifts = new List<Gift>(n+1);
-            vertGifts.Add(new Gift(0, 90, 0, 0));
+            vertGifts.Add(new Gift(0, maxLat, 0, 0));
             vertGifts.AddRange(gifts);
+
             var vertices = vertGifts.SelectMany(x => new[]
             {
-                ToNormalRange((float) x.Longitude, fminX, fmaxX),
-                ToNormalRange((float) x.Latitute, fminY, fmaxY)
+                ToNormalRange((float) x.Longitude,  minLong, maxLong),
+                ToNormalRange((float) x.Latitute, minLat, maxLat)
             }).ToArray();
 
             // showing gifts
             Console.WriteLine("Showing data");
-            window.SetVertices(vertices, n);
+            window.SetVertices(vertices, n+1);
 
             window.RunBackground(() =>
             {
@@ -71,13 +57,13 @@ namespace SCConsole
                 Console.WriteLine(Utils.CalcAllPenalty(initial));
                 Console.WriteLine("Initial solution completed");
                 var tours = initial.Select(list => new Tour(list)).ToList();
-                window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
+                //window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
 
                 // optimize solution
                 Console.WriteLine("Optimize solution");
                 //tours = tours.AsParallel().Select(HillClimber.Run).ToList();
                 Console.WriteLine("Solution completed");
-                window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
+                //window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
 
                 Console.WriteLine($"Total score: {tours.Sum(tour => tour.Cost)}");
                 Console.WriteLine($"Saving solution in {_pathSolution}");
