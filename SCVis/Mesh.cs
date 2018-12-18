@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System.Collections.Generic;
 
 namespace SCVis
 {
@@ -7,7 +8,7 @@ namespace SCVis
         public bool ActivePoints { get; private set; }
         public bool ActivePath { get; private set; }
 
-        private readonly int _vao, _vbo, _ebo;
+        private readonly int _vao, _vbo;
         private int _length;
 
         public Mesh()
@@ -20,9 +21,6 @@ namespace SCVis
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(0);
-            // create element array buffer object
-            GL.GenBuffers(1, out _ebo);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
         }
 
         public void SetVertices(float[] vertices, int length)
@@ -35,10 +33,18 @@ namespace SCVis
             _length = length;
         }
 
-        public void SetPath(int[] indices)
+        public int[] GenPaths(int n)
         {
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(int), indices,
+            // create element array buffer object
+            int[] ebos = new int[n];
+            GL.GenBuffers(n, ebos);
+            return ebos;
+        }
+
+        public void SetPath(int ebo, uint[] indices)
+        {
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices,
                 BufferUsageHint.StaticDraw);
             ActivePath = true;
         }
@@ -49,10 +55,9 @@ namespace SCVis
             GL.DrawArrays(PrimitiveType.Points, 0, _length);
         }
 
-        public void RenderPath()
+        public void RenderPath(int ebo)
         {
-            GL.BindVertexArray(_vao);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
             GL.DrawElements(PrimitiveType.LineLoop, _length, DrawElementsType.UnsignedInt, 0);
         }
     }

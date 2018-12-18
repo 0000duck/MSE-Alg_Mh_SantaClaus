@@ -2,11 +2,10 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using OpenTK.Graphics;
-using SCLib;
 using ButtonState = OpenTK.Input.ButtonState;
+using SCLib;
 
 namespace SCVis
 {
@@ -16,6 +15,7 @@ namespace SCVis
         private Program _programPoints, _programPath;
         private Vector4 _colorPoints, _colorPath;
         private Mesh _mesh;
+        private List<(int, Color4)> _paths;
         private Matrix4 _transformation;
         private MouseState _state;
 
@@ -46,6 +46,7 @@ namespace SCVis
             geometryShader.Delete();
             
             _mesh = new Mesh();
+            _paths = new List<(int, Color4)>();
             GL.ClearColor(0.9f, 0.9f, 0.9f, 1f);
             _colorPoints = new Vector4(0f, 0f, 1f, 1f);
             _colorPath = new Vector4(1f, 0f, 0f, 1f);
@@ -58,22 +59,27 @@ namespace SCVis
             Loaded?.Invoke(this, null);
         }
 
-        private static float ToNormalRange(float x, float min, float max) => (x - min) / (max - min) * 2 - 1;
-
-        public void SetInstance(Gift[] gifts, float minX, float maxX, float minY, float maxY)
+        public void SetVertices(float[] vertices, int n)
         {
-            var n = gifts.Length;
-            var vertices = gifts.SelectMany(x => new[]
-            {
-                ToNormalRange((float) x.Longitude, minX, maxX),
-                ToNormalRange((float) x.Latitute, minY, maxY)
-            }).ToArray();
             _mesh.SetVertices(vertices, n);
         }
 
-        public void SetPath(int[] indices)
+        public void SetTour(List<uint[]> tours)
         {
-            _mesh.SetPath(indices);
+            var n = tours.Count;
+            if (!_mesh.ActivePath)
+            {
+                foreach(var ebo in _mesh.GenPaths(n))
+                {
+                    _paths.Add((ebo, Color4.Red)); //TODO random color
+                }
+            }
+            for (var i = 0; i < n; i++)
+            {
+                var ebo = _paths[i].Item1;
+                var indices = tours[i];
+                _mesh.SetPath(ebo, indices);
+            }
         }
 
         private void OnUpdate(object sender, FrameEventArgs args)
@@ -111,7 +117,7 @@ namespace SCVis
                 _programPath.Use();
                 _programPath.WriteMat4("T", _transformation);
                 _programPath.WriteVec4("C", _colorPath);
-                _mesh.RenderPath();
+                _mesh.RenderPath(0);
             }
 
             //render points
