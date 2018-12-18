@@ -22,7 +22,7 @@ namespace SCConsole
             _pathGifts = (string)config["gifts"];
             _pathSolution = (string)config["solution"];
             var window = new GLWindow(800, 450, "Santa Claus");
-            window.Loaded += (sender, args) => Load((GLWindow) sender);
+            window.Loaded += (sender, args) => Load((GLWindow)sender);
             window.Run();
         }
 
@@ -45,10 +45,10 @@ namespace SCConsole
                 minY = Math.Min(minY, lat);
                 maxY = Math.Max(maxY, lat);
             }
-            var fminX = (float) minX;
-            var fminY = (float) minY;
-            var fmaxX = (float) maxX;
-            var fmaxY = (float) maxY;
+            var fminX = (float)minX;
+            var fminY = (float)minY;
+            var fmaxX = (float)maxX;
+            var fmaxY = (float)maxY;
             var n = gifts.Length;
             var vertices = gifts.SelectMany(x => new[]
             {
@@ -69,20 +69,22 @@ namespace SCConsole
             {
                 // create initial solution
                 Console.WriteLine("Creating initial solution");
-                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.0088, 0.0035, 980); //TODO adjust
+                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.00048, 980); //TODO adjust
+                Console.WriteLine(Utils.CalcAllPenalty(initial));
                 Console.WriteLine("Initial solution completed");
                 var tours = initial.Select(list => new Tour(list)).ToList();
+                IOHandler.Save(_pathSolution, n, tours);
                 _updateTour?.Invoke(this, new TourEventArgs(tours));
 
                 // optimize solution
                 Console.WriteLine("Optimize solution");
-                tours = tours.AsParallel().Select(HillClimber.Run).ToList();
+                //tours = tours.AsParallel().Select(HillClimber.Run).ToList();
                 Console.WriteLine("Solution completed");
                 _updateTour?.Invoke(this, new TourEventArgs(tours));
 
                 Console.WriteLine($"Total score: {tours.Sum(tour => tour.Cost)}");
                 Console.WriteLine($"Saving solution in {_pathSolution}");
-                IOHandler.Save(_pathSolution, n, tours);
+                //IOHandler.Save(_pathSolution, n, tours);
             });
             
         }
