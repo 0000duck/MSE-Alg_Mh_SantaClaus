@@ -67,10 +67,35 @@ namespace SCConsole
             {
                 // create initial solution
                 Console.WriteLine("Creating initial solution");
-                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.000002, 980); //TODO adjust
+                /*double mc = Double.PositiveInfinity, mi = 0;
+                for (double i = 0; i < 0.00001; i += 0.0000001)
+                {
+                    var init = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), new double[] { i, 0.000004 }, 980); //TODO adjust
+                    double c = Utils.CalcAllPenalty(init);
+                    if (c < mc)
+                    {
+                        mc = c;
+                        mi = i;
+                    }
+                }
+                mc = Double.PositiveInfinity; double mj = 0;
+                for (double i = 0; i < 0.00001; i += 0.0000001)
+                {
+                    var init = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), new double[] { mi, i }, 980); //TODO adjust
+                    double c = Utils.CalcAllPenalty(init);
+                    if (c < mc)
+                    {
+                        mc = c;
+                        mj = i;
+                    }
+                }
+                Console.WriteLine(mi);
+                Console.WriteLine(mj);*/
+                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), new double[] { 0.5, 0.2 }, 980); //TODO adjust
                 Console.WriteLine(Utils.CalcAllPenalty(initial));
                 Console.WriteLine("Initial solution completed");
                 var tours = initial.Select(list => new Tour(list)).ToList();
+                //IOHandler.Save(_pathSolution, n, tours);
                 window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id).ToArray()).ToList());
 
                 // optimize solution

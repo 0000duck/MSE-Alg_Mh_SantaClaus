@@ -3,3 +3,7 @@
 ################################################################################
 
 /.vs/Alg_Mh_SantaClaus
+/SCConsole/bin
+/SCConsole/obj
+/SCLib
+/SCVis

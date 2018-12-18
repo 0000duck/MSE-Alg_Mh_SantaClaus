@@ -7,10 +7,12 @@ namespace SCLib
 {
     public static class Utils
     {
-        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, int full)
+        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double[] longDelta, int full)
         {
             // Make groups by longitude and sort by latitude
-            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < -1.0472).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
+            // Split antarctica
+            var split = -1.0472; // radians
+            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < split).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta[g.Latitute < split ? 0 : 1])).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
             // Build groups with max weight < full
             var groupsWithLimitedWeight = clusterAndSort.AsParallel().
                 SelectMany(
