@@ -1,9 +1,33 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
+﻿# Project files
+SCConsole/config.json
 
-/.vs/Alg_Mh_SantaClaus
-/SCConsole/bin
-/SCConsole/obj
-/SCLib
-/SCVis
+# Visual Studio
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# NuGet Packages Directory
+packages/
+*.nuget.targets
+*.lock.json
+*.nuget.props
