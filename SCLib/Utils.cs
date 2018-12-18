@@ -35,12 +35,7 @@ namespace SCLib
 
         public static double CalcAllPenalty(List<List<Gift>> groupedGifts)
         {
-            double wholePenalty = 0.0;
-            foreach (List<Gift> tour in groupedGifts)
-            {
-                wholePenalty += CalcTourPenalty(tour);
-            }
-            return wholePenalty;
+            return groupedGifts.Sum(g => CalcTourPenalty(g));
         }
 
         private static Gift nordpole = new Gift(100000, 90, 0, 0);
@@ -53,7 +48,7 @@ namespace SCLib
                 w += g.Weight;
             }
             // Nordpole to first gift
-            double res = CalcDistance(nordpole, gifts[0]) * w;
+            double res = CalcExactDistance(nordpole, gifts[0]) * w;
             w -= gifts[0].Weight;
             for (int i = 0; i < gifts.Count - 1; i++)
             {
@@ -61,11 +56,11 @@ namespace SCLib
                 w -= gifts[i + 1].Weight;
             }
             // Back to nordpole
-            res += CalcDistance(gifts.Last(), nordpole) * 10;
+            res += CalcExactDistance(gifts.Last(), nordpole) * 10;
             return res;
         }
 
-        public static double CalcDistance(Gift gift1, Gift gift2)
+        public static double CalcFastDistance(Gift gift1, Gift gift2)
         {
             // We use Chord Length as we have less cos and sin calls.
             double dx = gift1.X - gift2.X;
@@ -73,7 +68,7 @@ namespace SCLib
             double dz = gift1.Z - gift2.Z;
             double d = dx * dx + dy * dy + dz * dz;
             double r = Math.Sqrt(d);
-            return 2 * Math.Asin(r);
+            return Math.Asin(r);
         }
 
         private static double CalcExactDistance(Gift gift1, Gift gift2)
