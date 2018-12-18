@@ -25,6 +25,7 @@ namespace SCVis
 
         public void SetVertices(float[] vertices, int length)
         {
+            GL.BindVertexArray(_vao);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices,
                 BufferUsageHint.StaticDraw);
@@ -33,12 +34,12 @@ namespace SCVis
             _length = length;
         }
 
-        public int[] GenPaths(int n)
+        public int GenPaths()
         {
             // create element array buffer object
-            int[] ebos = new int[n];
-            GL.GenBuffers(n, ebos);
-            return ebos;
+            GL.BindVertexArray(_vao);
+            GL.GenBuffers(1, out int ebo);
+            return ebo;
         }
 
         public void SetPath(int ebo, uint[] indices)
