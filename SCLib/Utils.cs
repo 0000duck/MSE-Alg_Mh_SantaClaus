@@ -26,6 +26,8 @@ namespace SCLib
                     )
                 ).ToList();
             Console.WriteLine(CalcAllPenalty(groupsWithLimitedWeight));
+            Console.WriteLine(groupsWithLimitedWeight.Count);
+            Console.WriteLine(groupsWithLimitedWeight.Sum(g => g.Count));
             return groupsWithLimitedWeight;
         }
 
@@ -39,20 +41,25 @@ namespace SCLib
             return wholePenalty;
         }
 
+        private static Gift nordpole = new Gift(100000, 90, 0, 0);
+
         public static double CalcTourPenalty(List<Gift> gifts)
         {
-            double weightSum = 0.0;
+            double w = 10.0;
             foreach (Gift g in gifts)
             {
-                weightSum += g.Weight;
+                w += g.Weight;
             }
-            double res = 0.0;
-            double w = weightSum + 10.0;
+            // Nordpole to first gift
+            double res = CalcDistance(nordpole, gifts[0]) * w;
+            w -= gifts[0].Weight;
             for (int i = 0; i < gifts.Count - 1; i++)
             {
-                res += CalcDistance(gifts[i], gifts[i + 1]) * w;
+                res += CalcExactDistance(gifts[i], gifts[i + 1]) * w;
                 w -= gifts[i + 1].Weight;
             }
+            // Back to nordpole
+            res += CalcDistance(gifts.Last(), nordpole) * 10;
             return res;
         }
 
@@ -67,6 +74,21 @@ namespace SCLib
             // We lose to much precision. We normalize the values to still be accurate.
             if (r < 0.02) return r * (2 + (2.0 / 6) * d);
             return 2 * Math.Asin(r);
+        }
+
+        private static double CalcExactDistance(Gift gift1, Gift gift2)
+        {
+            var R = 6372.8; // In kilometers
+            var lat1 = gift1.Latitute;
+            var lat2 = gift2.Latitute;
+            var lon1 = gift1.Longitude;
+            var lon2 = gift2.Longitude;
+            var diffLa = lat2 - lat1;
+            var diffLo = lon2 - lon1;
+
+            var a = Math.Sin(diffLa / 2) * Math.Sin(diffLa / 2) + Math.Sin(diffLo / 2) * Math.Sin(diffLo / 2) * Math.Cos(lat1) * Math.Cos(lat2);
+            var c = 2 * Math.Asin(Math.Sqrt(a));
+            return R * 2 * Math.Asin(Math.Sqrt(a));
         }
     }
     
