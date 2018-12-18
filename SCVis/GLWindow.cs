@@ -40,7 +40,7 @@ namespace SCVis
             {
                 var nw = new NativeWindow();
                 var context = new GraphicsContext(GraphicsMode.Default, nw.WindowInfo);
-                context.MakeCurrent(nw.WindowInfo);
+                //context.MakeCurrent(nw.WindowInfo);
                 action.Invoke();
                 context.Dispose();
                 nw.Dispose();

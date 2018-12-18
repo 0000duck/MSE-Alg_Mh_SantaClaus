@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System.Collections.Generic;
 
 namespace SCVis
 {
@@ -45,7 +44,7 @@ namespace SCVis
         public void SetPath(int ebo, uint[] indices)
         {
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices,
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(int), indices,
                 BufferUsageHint.StaticDraw);
             ActivePath = true;
         }
@@ -58,6 +57,7 @@ namespace SCVis
 
         public void RenderPath(int ebo)
         {
+            GL.BindVertexArray(_vao);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
             GL.DrawElements(PrimitiveType.LineLoop, _length, DrawElementsType.UnsignedInt, 0);
         }
