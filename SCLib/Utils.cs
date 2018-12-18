@@ -7,10 +7,10 @@ namespace SCLib
 {
     public static class Utils
     {
-        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, int full)
+        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, double jumpingDelta, int full)
         {
             // Make groups by longitude and sort by latitude
-            var clusterAndSort = gifts.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute));
+            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < -60).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
             // Build groups with max weight < full
             var groupsWithLimitedWeight = clusterAndSort.AsParallel().
                 SelectMany(
@@ -18,7 +18,7 @@ namespace SCLib
                         new List<List<Gift>>(), 
                         (acc, g) => 
                         {
-                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full)
+                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full || (acc.Last().Count > 0 && Math.Abs(acc.Last().Last().Longitude - g.Longitude) > jumpingDelta))
                                 acc.Add(new List<Gift>());
                             acc.Last().Add(g);
                             return acc;
