@@ -7,7 +7,7 @@ namespace SCLib
 {
     public static class Utils
     {
-        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, double jumpingDelta, int full)
+        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, int full)
         {
             // Make groups by longitude and sort by latitude
             var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < -1.0472).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
@@ -18,16 +18,18 @@ namespace SCLib
                         new List<List<Gift>>(), 
                         (acc, g) => 
                         {
-                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full || (acc.Last().Count > 0 && Math.Abs(acc.Last().Last().Longitude - g.Longitude) > jumpingDelta))
+                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full)
                                 acc.Add(new List<Gift>());
                             acc.Last().Add(g);
                             return acc;
                         }
                     )
                 ).ToList();
+#if DEBUG
             Console.WriteLine(CalcAllPenalty(groupsWithLimitedWeight));
             Console.WriteLine(groupsWithLimitedWeight.Count);
             Console.WriteLine(groupsWithLimitedWeight.Sum(g => g.Count));
+#endif
             return groupsWithLimitedWeight;
         }
 
