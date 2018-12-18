@@ -11,14 +11,16 @@ namespace SCConsole
 {
     public class Controller
     {
-        private readonly string _path;
+        private readonly string _pathGifts;
+        private readonly string _pathSolution;
 
         private event EventHandler<TourEventArgs> _updateTour;
 
         public Controller()
         {
             var config = JObject.Parse(File.ReadAllText(@"config.json"));
-            _path = (string)config["gifts"];
+            _pathGifts = (string)config["gifts"];
+            _pathSolution = (string)config["solution"];
             var window = new GLWindow(800, 450, "Santa Claus");
             window.Loaded += (sender, args) => Load((GLWindow) sender);
             window.Run();
@@ -26,8 +28,8 @@ namespace SCConsole
 
         public void Load(GLWindow window)
         {
-            Console.WriteLine($"Loading data from {_path}");
-            var gifts = IOHandler.Load(_path);
+            Console.WriteLine($"Loading data from {_pathGifts}");
+            var gifts = IOHandler.Load(_pathGifts);
             // preprocessing
             Console.WriteLine("Preprocessing data");
             var minX = double.MaxValue;
@@ -78,12 +80,8 @@ namespace SCConsole
                 Console.WriteLine("Solution completed");
                 _updateTour?.Invoke(this, new TourEventArgs(tours));
                 Console.WriteLine($"Total score: {tours.Sum(tour => tour.Cost)}");
-                for (var i = 0; i < tours.Count; i++)
-                {
-                    var tour = tours[i];
-                    Console.WriteLine($"Tour {i}, score: {tour.Cost}");
-                    Console.WriteLine($"Gifts: {string.Join(", ", tour.Gifts.Select(gift => gift.Id))}");
-                }
+                Console.WriteLine($"Saving solution in {_pathSolution}");
+                IOHandler.Save(_pathSolution, tours);
             });
             
         }

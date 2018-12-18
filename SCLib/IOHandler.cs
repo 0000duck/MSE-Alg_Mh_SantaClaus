@@ -19,5 +19,21 @@ namespace SCLib
             }
             return list.ToArray();
         }
+
+        public static void Save(string path, List<Tour> solution)
+        {
+            using (var sw = new StreamWriter(new BufferedStream(File.Create(path))))
+            {
+                sw.WriteLine("GiftId,TripId");
+                for (var i = 0; i < solution.Count; i++)
+                {
+                    var tour = solution[i];
+                    foreach (var gift in tour.Gifts)
+                    {
+                        sw.WriteLine($"{gift.Id},{i}");
+                    }
+                }
+            }
+        }
     }
 }
