@@ -69,7 +69,7 @@ namespace SCConsole
             {
                 // create initial solution
                 Console.WriteLine("Creating initial solution");
-                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.5, 980); //TODO adjust
+                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.0088, 0.0035, 980); //TODO adjust
                 Console.WriteLine("Initial solution completed");
                 var tours = initial.Select(list => new Tour(list)).ToList();
                 _updateTour?.Invoke(this, new TourEventArgs(tours));

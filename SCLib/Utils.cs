@@ -10,7 +10,7 @@ namespace SCLib
         public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double longDelta, double jumpingDelta, int full)
         {
             // Make groups by longitude and sort by latitude
-            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < -60).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
+            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < -1.0472).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta)).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
             // Build groups with max weight < full
             var groupsWithLimitedWeight = clusterAndSort.AsParallel().
                 SelectMany(
@@ -71,14 +71,12 @@ namespace SCLib
             double dz = gift1.Z - gift2.Z;
             double d = dx * dx + dy * dy + dz * dz;
             double r = Math.Sqrt(d);
-            // We lose to much precision. We normalize the values to still be accurate.
-            if (r < 0.02) return r * (2 + (2.0 / 6) * d);
             return 2 * Math.Asin(r);
         }
 
         private static double CalcExactDistance(Gift gift1, Gift gift2)
         {
-            var R = 6372.8; // In kilometers
+            var R = 6371.0088; // In kilometers
             var lat1 = gift1.Latitute;
             var lat2 = gift2.Latitute;
             var lon1 = gift1.Longitude;
@@ -87,7 +85,6 @@ namespace SCLib
             var diffLo = lon2 - lon1;
 
             var a = Math.Sin(diffLa / 2) * Math.Sin(diffLa / 2) + Math.Sin(diffLo / 2) * Math.Sin(diffLo / 2) * Math.Cos(lat1) * Math.Cos(lat2);
-            var c = 2 * Math.Asin(Math.Sqrt(a));
             return R * 2 * Math.Asin(Math.Sqrt(a));
         }
     }
