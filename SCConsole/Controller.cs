@@ -58,7 +58,7 @@ namespace SCConsole
 
             // create initial solution
             Console.WriteLine("Creating initial solution");
-            var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.5, 980); //TODO adjust
+            var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), 0.5, 0.2, 980); //TODO adjust
             Console.WriteLine("Initial solution completed");
             var tours = initial.Select(list => new Tour(list)).ToList();
             window.SetTour(tours.Select(tour => tour.Gifts.Select(gift => gift.Id - 1).ToArray()).ToList());
@@ -72,11 +72,12 @@ namespace SCConsole
             for (var i = 0; i < tours.Count; i++)
             {
                 var tour = tours[i];
+#if DEBUG
                 Console.WriteLine($"Tour {i}, score: {tour.Cost}");
                 Console.WriteLine($"Gifts: {string.Join(", ", tour.Gifts.Select(gift => gift.Id))}");
+#endif
             }
         }
-
         private static float ToNormalRange(float x, float min, float max) => (x - min) / (max - min) * 2 - 1;
     }
 }
