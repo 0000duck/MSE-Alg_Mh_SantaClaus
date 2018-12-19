@@ -5,6 +5,8 @@ namespace SCLib
     public struct Gift
     {
         public readonly uint Id;
+        public readonly double LatituteDeg;
+        public readonly double LongitudeDeg;
         public readonly double Latitute;
         public readonly double Longitude;
         public readonly double Weight;
@@ -14,6 +16,8 @@ namespace SCLib
         {
             Id = id;
             // Use radians.
+            LatituteDeg = latitute;
+            LongitudeDeg = longitude;
             Latitute = latitute * Math.PI / 180;
             Longitude = longitude * Math.PI / 180;
             Weight = weight;

@@ -77,7 +77,7 @@ namespace SCConsole
                 }
                 Console.WriteLine(mi);
                 Console.WriteLine(mj);*/
-                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), new double[] { 0.5, 0.2 }, 980); //TODO adjust
+                var initial = Utils.GenerateClusteredSolutionByLongitude(new List<Gift>(gifts), new double[] { 0.02, 0.04 }, new double[] { 0.04, 0.06 }, 980); //TODO adjust
                 Console.WriteLine(Utils.CalcAllPenalty(initial));
                 Console.WriteLine("Initial solution completed");
                 var tours = initial.Select(list => new Tour(list)).ToList();
@@ -92,6 +92,7 @@ namespace SCConsole
                 Console.WriteLine($"Total score: {tours.Sum(tour => tour.Cost)}");
                 Console.WriteLine($"Saving solution in {_pathSolution}");
                 IOHandler.Save(_pathSolution, n, tours);
+                Console.WriteLine($"Done");
             });
         }
         private static float ToNormalRange(float x, float min, float max) => (x - min) / (max - min) * 2 - 1;

@@ -7,12 +7,12 @@ namespace SCLib
 {
     public static class Utils
     {
-        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double[] longDelta, int full)
+        public static List<List<Gift>> GenerateClusteredSolutionByLongitude(List<Gift> gifts, double[] longDelta, double[] localJumpsDelta, int full)
         {
             // Make groups by longitude and sort by latitude
             // Split antarctica
-            var split = -1.0472; // radians
-            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.Latitute < split).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.Longitude * longDelta[g.Latitute < split ? 0 : 1])).Select(group => group.AsParallel().OrderBy(g => g.Latitute)));
+            var split = -60; // radians
+            var clusterAndSort = gifts.AsParallel().GroupBy(g => g.LatituteDeg < split).SelectMany(gr => gr.AsParallel().GroupBy(g => Math.Floor(g.LongitudeDeg * longDelta[g.LatituteDeg < split ? 0 : 1])).Select(group => group.AsParallel().OrderBy(g => g.LatituteDeg)));
             // Build groups with max weight < full
             var groupsWithLimitedWeight = clusterAndSort.AsParallel().
                 SelectMany(
@@ -20,7 +20,7 @@ namespace SCLib
                         new List<List<Gift>>(), 
                         (acc, g) => 
                         {
-                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full)
+                            if (acc.Count == 0 || acc.Last().Sum(gPrev => gPrev.Weight) + g.Weight > full || (acc.Last().Count > 1 && (acc.Last()[acc.Last().Count-2].LongitudeDeg - g.LongitudeDeg) > localJumpsDelta[g.LatituteDeg < split ? 0 : 1]))
                                 acc.Add(new List<Gift>());
                             acc.Last().Add(g);
                             return acc;
