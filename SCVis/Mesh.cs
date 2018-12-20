@@ -7,8 +7,9 @@ namespace SCVis
         public bool ActivePoints { get; private set; }
         public bool ActivePath { get; private set; }
 
-        private readonly int _vao, _vbo;
+        private readonly int _vao, _vbo, _ebo;
         private int _length;
+        private int _lengthIdx;
 
         public Mesh()
         {
@@ -20,6 +21,10 @@ namespace SCVis
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(0);
+            // create element buffer object
+            GL.GenBuffers(1, out _ebo);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
+
         }
 
         public void SetVertices(float[] vertices, int length)
@@ -33,20 +38,13 @@ namespace SCVis
             _length = length;
         }
 
-        public int GenPaths()
+        public void SetPaths(uint[] indices)
         {
-            // create element array buffer object
-            GL.BindVertexArray(_vao);
-            GL.GenBuffers(1, out int ebo);
-            return ebo;
-        }
-
-        public void SetPath(int ebo, uint[] indices)
-        {
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(int), indices,
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices,
                 BufferUsageHint.StaticDraw);
             ActivePath = true;
+            _lengthIdx = indices.Length;
         }
 
         public void RenderPoints()
@@ -55,11 +53,11 @@ namespace SCVis
             GL.DrawArrays(PrimitiveType.Points, 0, _length);
         }
 
-        public void RenderPath(int ebo)
+        public void RenderPath()
         {
             GL.BindVertexArray(_vao);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-            GL.DrawElements(PrimitiveType.LineLoop, _length, DrawElementsType.UnsignedInt, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _ebo);
+            GL.DrawElements(PrimitiveType.Lines, _lengthIdx, DrawElementsType.UnsignedInt, 0);
         }
     }
 }
